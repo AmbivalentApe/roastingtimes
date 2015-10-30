@@ -82,8 +82,12 @@ object RoastCalculator {
 
 
 
-		}))
+		}))}
 
-
+	def calculateTotalCookingTimes(animal : Meat, doneness : Doneness) : (Long,Long) = {
+		(calculateSizzle(animal.weight),calculateNormalCookingTime(animal,doneness))
 	}
+
+
+	
 }

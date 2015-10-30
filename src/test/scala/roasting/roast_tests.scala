@@ -134,6 +134,12 @@ object LambTests extends TestSuite{
 			val in = Lamb(Grams(5000.0))
 			assert(RoastCalculator.calculateNormalCookingTime(in,roast.Doneness.Well)==180)
 		}
+		'total_well_large{
+			val in = Lamb(Grams(5000.0))
+			println(RoastCalculator.calculateTotalCookingTimes(in,roast.Doneness.Well))
+			
+			assert(RoastCalculator.calculateTotalCookingTimes(in,roast.Doneness.Well)==(40,180))
+		}
 		'main_very_well_regular{
 			val in = Lamb(Grams(5000.0))
 			assert(RoastCalculator.calculateNormalCookingTime(in,roast.Doneness.VeryWell)==0)
@@ -142,6 +148,7 @@ object LambTests extends TestSuite{
 			val in = Lamb(Grams(5000.0))
 			assert(RoastCalculator.calculateNormalCookingTime(in,roast.Doneness.VeryWell)==0)
 		}
+
 
 	}
 
@@ -224,3 +231,4 @@ object PorkTests extends TestSuite{
 	}
 
 }
+
