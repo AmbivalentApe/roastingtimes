@@ -1,4 +1,4 @@
-package roast
+package pe.ambivalenta.roast.model
 
 import scala.math.round
 
