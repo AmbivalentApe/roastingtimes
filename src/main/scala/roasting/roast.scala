@@ -22,9 +22,12 @@ case class Lamb(weight: Weight) extends Meat;
 case class Venison(weight: Weight) extends Meat;
 case class Pork(weight: Weight) extends Meat
 
-object Doneness extends Enumeration{ // I hate this word but can't think of a better alternative. VeryWell might result in the Star Spangled banner playing.
+object Doneness extends Enumeration { 
 	type Doneness = Value
-	val Rare, Medium, Well, VeryWell = Value
+	val Rare= Value("Rare") 
+	val Medium=Value("Medium") 
+	val Well=Value("Well") 
+	val VeryWell=Value("VeryWell")
 }
 
 object WeightCalculator {
@@ -42,27 +45,24 @@ object RoastCalculator {
 	import Doneness._
 
 	def calculateSizzle(weight : Weight) : Long = {
-		/**
+		
 
-		'Sizzle' time on high heat (~220c). This will eventually need to support Animal as an additional
-		parameter as we want deal with poultry. This time isn't linear with size of the joint being roasted,
-		so we cap it at the extremes
+		//'Sizzle' time on high heat (~220c). This will eventually need to support Animal as an additional
+		//parameter as we want deal with poultry. This time isn't linear with size of the joint being roasted,
+		//so we cap it at the extremes
 
-		*/
+		
 		val scaled = WeightCalculator.normaliseWeight(weight).quantity/100.0
-		return scaled match {
-			case v if(scaled < 20.0) => 20
-			case w if(scaled > 40.0) => 40
+		scaled match {
+			case v  if(scaled < 20.0) => 20
+			case w  if(scaled > 40.0) => 40
 			case _ => round(scaled)
 		}
 	}
 
 	def calculateNormalCookingTime(animal : Meat, doneness : Doneness) : Long = {
-		/**
+		//Calculate the 'main' longer slower roast - e.g. at 180 c
 
-		Calculate the 'main' longer slower roast - e.g. at 180 c
-
-		*/
 		val weightInGrams = WeightCalculator.normaliseWeight(animal.weight).quantity
 		val isBig = if(weightInGrams >= 5000) true else false // we want smaller cooking times for larger joints to prevent them from being toast.
 		round((weightInGrams/500.0) * (animal match {
