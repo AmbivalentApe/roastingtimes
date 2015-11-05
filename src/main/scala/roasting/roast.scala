@@ -12,22 +12,24 @@ case class Ounces(quantity: Double) extends Weight
 case class PoundsOunces(pounds: Int, ounces: Double) extends Weight
 
 
-abstract class Meat{
+abstract class Animal{
 	val weight : Weight
 }
-abstract class Poultry extends Meat; // Duck typing? I'll get me coat.
+abstract class Poultry extends Animal; // Duck typing? I'll get me coat.
 
-case class Beef(weight: Weight) extends Meat;
-case class Lamb(weight: Weight) extends Meat;
-case class Venison(weight: Weight) extends Meat;
-case class Pork(weight: Weight) extends Meat
+case class Beef(weight: Weight) extends Animal
+case class Lamb(weight: Weight) extends Animal
+case class Venison(weight: Weight) extends Animal
+case class Pork(weight: Weight) extends Animal
+
+
 
 object Doneness extends Enumeration { 
 	type Doneness = Value
 	val Rare= Value("Rare") 
 	val Medium=Value("Medium") 
 	val Well=Value("Well") 
-	val VeryWell=Value("VeryWell")
+	val VeryWell=Value("Very Well")
 }
 
 object WeightCalculator {
@@ -37,13 +39,14 @@ object WeightCalculator {
     	case k:KiloGrams => Grams(k.quantity*1000.0)
     	case o:Ounces => Grams(o.quantity*28.35)
     	case p:PoundsOunces => normaliseWeight(Grams(((p.pounds*16)+p.ounces)*28.35))
+    	
 	}
 }
 
 
 object RoastCalculator {
 	import Doneness._
-
+	def animals() : Vector[String] = Vector("Pork","Beef","Lamb","Venison")
 	def calculateSizzle(weight : Weight) : Long = {
 		
 
@@ -60,7 +63,7 @@ object RoastCalculator {
 		}
 	}
 
-	def calculateNormalCookingTime(animal : Meat, doneness : Doneness) : Long = {
+	def calculateNormalCookingTime(animal : Animal, doneness : Doneness) : Long = {
 		//Calculate the 'main' longer slower roast - e.g. at 180 c
 
 		val weightInGrams = WeightCalculator.normaliseWeight(animal.weight).quantity
@@ -84,7 +87,7 @@ object RoastCalculator {
 
 		}))}
 
-	def calculateTotalCookingTimes(animal : Meat, doneness : Doneness) : (Long,Long) = {
+	def calculateTotalCookingTimes(animal : Animal, doneness : Doneness) : (Long,Long) = {
 		(calculateSizzle(animal.weight),calculateNormalCookingTime(animal,doneness))
 	}
 

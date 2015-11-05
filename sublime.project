@@ -1,0 +1,22 @@
+{
+    "folders":
+    [
+        {
+            "path": "src"
+        },
+        {
+            "path": "project"
+        }
+    ],
+    "settings":
+    {
+        "tab_size": 8
+    },
+    "build_systems":
+    [
+        {
+            "name": "List",
+            "cmd": ["sbt"]
+        }
+    ]
+}
