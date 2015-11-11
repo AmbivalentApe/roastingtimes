@@ -2,10 +2,8 @@
 package pe.ambivalenta.roast.model.tests
 import utest._
 
-import pe.ambivalenta.roast.model.KiloGrams
-import pe.ambivalenta.roast.model.Grams
-import pe.ambivalenta.roast.model.Ounces
-import pe.ambivalenta.roast.model.PoundsOunces
+import pe.ambivalenta.roast.model.WeightUnit._
+import pe.ambivalenta.roast.model.Weight
 import pe.ambivalenta.roast.model.WeightCalculator
 import pe.ambivalenta.roast.model.RoastCalculator
 import pe.ambivalenta.roast.model.Doneness._
@@ -18,22 +16,22 @@ import scala.math.round
 object WeightTests extends TestSuite{
 	val tests = TestSuite{
 		'normalise_grams{
-			val in = Grams(2.3)
-			assert(WeightCalculator.normaliseWeight(in)==Grams(2.3))
+			val in = Weight(2.3,pe.ambivalenta.roast.model.WeightUnit.Grams)
+			assert(WeightCalculator.normaliseWeight(in)==Weight(2.3,pe.ambivalenta.roast.model.WeightUnit.Grams))
 
 		}
 		'normalise_kilos{
-			val in = KiloGrams(1.9)
-			assert(WeightCalculator.normaliseWeight(in)==Grams(1900.0))
+			val in = Weight(1.9,pe.ambivalenta.roast.model.WeightUnit.Kilograms)
+			assert(WeightCalculator.normaliseWeight(in)==Weight(1900.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 
 		}
 		'normalise_ounces{
-			val in = Ounces(1)
-			assert(WeightCalculator.normaliseWeight(in)==Grams(28.35))
+			val in = Weight(1.0,pe.ambivalenta.roast.model.WeightUnit.Ounces)
+			assert(WeightCalculator.normaliseWeight(in)==Weight(28.35,pe.ambivalenta.roast.model.WeightUnit.Grams))
 
 		}
 		'normalise_pounds_ounces{
-			val in = PoundsOunces(1,13)
+			val in = Weight(1.8125,pe.ambivalenta.roast.model.WeightUnit.Pounds)
 			val k = WeightCalculator.normaliseWeight(in)
 			assert(round(k.quantity)==822)
 			
@@ -47,21 +45,21 @@ object WeightTests extends TestSuite{
 object SizzleTests extends TestSuite{
 	val tests = TestSuite{
 		'sizzle_floor{
-			val in = Grams(1999)
+			val in = Weight(1999,pe.ambivalenta.roast.model.WeightUnit.Grams)
 			assert(RoastCalculator.calculateSizzle(in)==20)
 
 		}
 		'sizzle_cap{
-			val in = Grams(4001)
+			val in = Weight(4001,pe.ambivalenta.roast.model.WeightUnit.Grams)
 			assert(RoastCalculator.calculateSizzle(in)==40)
 
 		}
 		'sizzle_default{
-			val in = Grams(2300)
+			val in = Weight(2300,pe.ambivalenta.roast.model.WeightUnit.Grams)
 			assert(RoastCalculator.calculateSizzle(in)==23)
 		}
 		'sizzle_convert{
-			val in = Ounces(88)
+			val in = Weight(88,pe.ambivalenta.roast.model.WeightUnit.Ounces)
 			assert(RoastCalculator.calculateSizzle(in)==25)
 
 		}
@@ -72,35 +70,35 @@ object SizzleTests extends TestSuite{
 object BeefTests extends TestSuite{
 	val tests = TestSuite{
 		'main_rare_regular{
-			val in = Beef(Grams(2000.0))
+			val in = Beef(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==40)
 		}
 		'main_rare_large{
-			val in = Beef(Grams(5000.0))
+			val in = Beef(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==90)
 		}
 		'main_medium_regular{
-			val in = Beef(Grams(2000.0))
+			val in = Beef(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==60)
 		}
 		'main_medium_large{
-			val in = Beef(Grams(5000.0))
+			val in = Beef(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==120)
 		}
 		'main_well_regular{
-			val in = Beef(Grams(2000.0))
+			val in = Beef(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==80)
 		}
 		'main_well_large{
-			val in = Beef(Grams(5000.0))
+			val in = Beef(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==180)
 		}
 		'main_very_well_regular{
-			val in = Beef(Grams(5000.0))
+			val in = Beef(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==0)
 		}
 		'main_very_well_large{
-			val in = Beef(Grams(5000.0))
+			val in = Beef(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==0)
 		}
 
@@ -111,41 +109,41 @@ object BeefTests extends TestSuite{
 object LambTests extends TestSuite{
 	val tests = TestSuite{
 		'main_rare_regular{
-			val in = Lamb(Grams(2000.0))
+			val in = Lamb(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==40)
 		}
 		'main_rare_large{
-			val in = Lamb(Grams(5000.0))
+			val in = Lamb(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==90)
 		}
 		'main_medium_regular{
-			val in = Lamb(Grams(2000.0))
+			val in = Lamb(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==60)
 		}
 		'main_medium_large{
-			val in = Lamb(Grams(5000.0))
+			val in = Lamb(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==120)
 		}
 		'main_well_regular{
-			val in = Lamb(Grams(2000.0))
+			val in = Lamb(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==80)
 		}
 		'main_well_large{
-			val in = Lamb(Grams(5000.0))
+			val in = Lamb(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==180)
 		}
 		'total_well_large{
-			val in = Lamb(Grams(5000.0))
+			val in = Lamb(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			println(RoastCalculator.calculateTotalCookingTimes(in, pe.ambivalenta.roast.model.Doneness.Well))
 			
 			assert(RoastCalculator.calculateTotalCookingTimes(in, pe.ambivalenta.roast.model.Doneness.Well)==(40,180))
 		}
 		'main_very_well_regular{
-			val in = Lamb(Grams(5000.0))
+			val in = Lamb(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==0)
 		}
 		'main_very_well_large{
-			val in = Lamb(Grams(5000.0))
+			val in = Lamb(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==0)
 		}
 
@@ -157,35 +155,35 @@ object LambTests extends TestSuite{
 object VensionTests extends TestSuite{
 	val tests = TestSuite{
 		'main_rare_regular{
-			val in = Venison(Grams(2000.0))
+			val in = Venison(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==40)
 		}
 		'main_rare_large{
-			val in = Venison(Grams(5000.0))
+			val in = Venison(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==90)
 		}
 		'main_medium_regular{
-			val in = Venison(Grams(2000.0))
+			val in = Venison(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==60)
 		}
 		'main_medium_large{
-			val in = Venison(Grams(5000.0))
+			val in = Venison(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==120)
 		}
 		'main_well_regular{
-			val in = Venison(Grams(2000.0))
+			val in = Venison(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==80)
 		}
 		'main_well_large{
-			val in = Venison(Grams(5000.0))
+			val in = Venison(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==180)
 		}
 		'main_very_well_regular{
-			val in = Venison(Grams(5000.0))
+			val in = Venison(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==0)
 		}
 		'main_very_well_large{
-			val in = Venison(Grams(5000.0))
+			val in = Venison(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==0)
 		}
 
@@ -196,35 +194,35 @@ object VensionTests extends TestSuite{
 object PorkTests extends TestSuite{
 	val tests = TestSuite{
 		'main_rare_regular{
-			val in = Pork(Grams(2000.0))
+			val in = Pork(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==0)//unwise
 		}
 		'main_rare_large{
-			val in = Pork(Grams(5000.0))
+			val in = Pork(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Rare)==0)//unwise
 		}
 		'main_medium_regular{
-			val in = Pork(Grams(2000.0))
+			val in = Pork(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==0)//unwise
 		}
 		'main_medium_large{
-			val in = Pork(Grams(5000.0))
+			val in = Pork(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Medium)==0)//unwise
 		}
 		'main_well_regular{
-			val in = Pork(Grams(2000.0))
+			val in = Pork(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==100)
 		}
 		'main_well_large{
-			val in = Pork(Grams(5000.0))
+			val in = Pork(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.Well)==250)//cooking time constant irrespective of joint size
 		}
 		'main_very_well_regular{
-			val in = Pork(Grams(2000.0))
+			val in = Pork(Weight(2000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==120)
 		}
 		'main_very_well_large{
-			val in = Pork(Grams(5000.0))
+			val in = Pork(Weight(5000.0,pe.ambivalenta.roast.model.WeightUnit.Grams))
 			assert(RoastCalculator.calculateNormalCookingTime(in, pe.ambivalenta.roast.model.Doneness.VeryWell)==300) //cooking time constant irrespective of joint size
 		}
 

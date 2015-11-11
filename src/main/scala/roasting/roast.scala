@@ -5,11 +5,17 @@ import scala.math.round
 /**
  First define some types - set of basic weights.
 */
-abstract class Weight
-case class Grams(quantity: Double) extends Weight
-case class KiloGrams(quantity: Double) extends Weight
-case class Ounces(quantity: Double) extends Weight
-case class PoundsOunces(pounds: Int, ounces: Double) extends Weight
+
+object WeightUnit extends Enumeration{
+	type WeightUnit = Value
+	val Grams = Value("Grams")
+	val Kilograms = Value("Kilograms")
+	val Ounces = Value("Ounces")
+	val Pounds = Value("Pounds")
+}
+import WeightUnit._
+case class Weight(quantity:Double, units:WeightUnit)
+
 
 
 abstract class Animal{
@@ -23,7 +29,6 @@ case class Venison(weight: Weight) extends Animal
 case class Pork(weight: Weight) extends Animal
 
 
-
 object Doneness extends Enumeration { 
 	type Doneness = Value
 	val Rare= Value("Rare") 
@@ -32,16 +37,36 @@ object Doneness extends Enumeration {
 	val VeryWell=Value("Very Well")
 }
 
+object Heat extends Enumeration {
+	/*
+	* This is a bit lazy, and could of course by converted on the fly, but it's easier to
+	* just have fixed values and round them as we like
+	*/
+	type Heat = Value
+	val HighC = Value("220")
+	val LowC = Value("160")
+
+	val HighCFan = Value("200")
+	val LowCFan = Value("140")
+
+	val HighF = Value("400")
+	val LowF = Value("320")
+
+
+}
+
 object WeightCalculator {
-	def normaliseWeight(weight: Weight) : Grams = weight match{ 
+	import WeightUnit._
+	def normaliseWeight(weight: Weight) : Weight = weight.units match{ 
 		// force all weights into Grams to make life easier elsewhere.
-    	case g:Grams => g
-    	case k:KiloGrams => Grams(k.quantity*1000.0)
-    	case o:Ounces => Grams(o.quantity*28.35)
-    	case p:PoundsOunces => normaliseWeight(Grams(((p.pounds*16)+p.ounces)*28.35))
+    	case WeightUnit.Grams => weight
+    	case WeightUnit.Kilograms => Weight(weight.quantity*1000.0,WeightUnit.Grams)
+    	case WeightUnit.Ounces => Weight(weight.quantity*28.35,WeightUnit.Grams)
+    	case WeightUnit.Pounds => Weight(weight.quantity*16*28.35,WeightUnit.Grams)
     	
 	}
 }
+
 
 
 object RoastCalculator {
@@ -79,12 +104,7 @@ object RoastCalculator {
 							case Doneness.Medium => if(isBig){12.0} else 15.0
 							case Doneness.Well => if(isBig){18.0} else 20.0
 							case _ => 0.0 // WHY WHY WOULD YOU DO THIS
-
 						}
-			
-
-
-
 		}))}
 
 	def calculateTotalCookingTimes(animal : Animal, doneness : Doneness) : (Long,Long) = {

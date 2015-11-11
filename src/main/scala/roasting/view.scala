@@ -10,6 +10,9 @@ import scala.scalajs.js.JSApp
 
 import pe.ambivalenta.roast.model._
 import pe.ambivalenta.roast.model.Doneness._
+import pe.ambivalenta.roast.model.Heat._
+import pe.ambivalenta.roast.model.WeightUnit._
+
 
 import org.scalajs.dom.document
 
@@ -28,9 +31,21 @@ object Screen extends JSApp{
 
     class Backend($: BackendScope[Unit, State]){
 
-        def onChangeWeight(e: ReactEventI) = 
+        def onChangeWeight(e: ReactEventI) = {
+            val parsed_weight = e.target.value match {
+                case blank if blank=="" => 0
+                case e if e.endsWith(".") => (e+'0').toDouble
+                case _ => e.target.value.toDouble
+            }
             $.modState(state => state.onNewAnimal(newAnimal(state.animal.getClass.getSimpleName,
-                                          WeightCalculator.normaliseWeight(Grams(e.target.value.toDouble)))))
+                                                                Weight(parsed_weight,state.animal.weight.units))))
+            
+        }
+
+        def onChangeWeightUnit(e:ReactEventI) =
+            $.modState(state => state.onNewAnimal(newAnimal(state.animal.getClass.getSimpleName,
+                                                                Weight(state.animal.weight.quantity,
+                                                                        WeightUnit.withName(e.target.value)))))
 
         def onChangeDoneness(e: ReactEventI) =
             $.modState(state => state.onNewDoneness(Doneness.withName(e.target.value)))
@@ -50,48 +65,110 @@ object Screen extends JSApp{
 
         def render(state: State) = {
             val s= state
+            val step = s.animal.weight.units match {
+                                        case WeightUnit.Grams => 100
+                                        case WeightUnit.Kilograms => 0.1
+                                        case WeightUnit.Ounces => 1
+                                        case WeightUnit.Pounds => 0.1
+                                    }
+
             //<.div(state.animal.weight);
-            <.div(
-                <.p(<.label("Animal:"),
-                    <.select(RoastCalculator.animals().map(v=> <.option(^.key:=v,^.value:=v)(v)),
+            <.div(^.cls:="container",
+
+                
+                    <.div(^.cls:="row",
+
+                        <.div(^.cls:="col-md-5",
+                                <.h3(<.span(^.cls:="label label-primary", "meat")),
+                        
+                    
+                        <.select(RoastCalculator.animals().map(v=> <.option(^.key:=v,^.value:=v)(v)),
                             ^.value := s.animal.getClass.getSimpleName,
-                            ^.onChange ==> onChangeAnimal)
+                            ^.onChange ==> onChangeAnimal,
+                            ^.cls:="form-control select select-primary"
+                            )
+                        )
                     ),
-                <.p(<.label("Weight:"),
+
+                <.div(^.cls:="row",
+                    <.div(^.cls:="col-md-5",
+                            <.h3(<.span(^.cls:="label label-primary", "weight")),
+                    
                         <.input(
                             ^.placeholder := "S",
-                            ^.value       := WeightCalculator.normaliseWeight(s.animal.weight).quantity,
-                            ^.onChange    ==> onChangeWeight
-                            )),
-                <.p(<.label("Doneness:"),
-                        <.select( Doneness.values.map(v => <.option(^.key:=v.toString,^.value:=v.toString)(v.toString)),
-                            ^.onChange ==> onChangeDoneness,
-                            ^.value := s.doneness.toString
-                          )
-            
-                ),
+                            ^.value       := s.animal.weight.quantity,
+                            ^.onChange    ==> onChangeWeight,
+                            ^.`type` := "number",
+                            ^.cls := "form-control",
+                            ^.step := step
+                            ),<.p(),
+                                                <.select( WeightUnit.values.map(v => <.option(^.key:=v.toString,^.value:=v.toString)(v.toString)),
+                            ^.onChange ==> onChangeWeightUnit,
+                            ^.value := s.animal.weight.units.toString,
+                            ^.cls := "form-control select select-primary"
 
-                s.times._2 match {
-                    case z if z ==0 => <.p("That seems unwise")
-                    case _ => <.p(s"Sizzle for ${s.times._1} minutes at 220 degrees c, then turn down the heat to 160 and roast for ${s.times._2} minutes")
-                }
-            )
+                          )
+)
+                    ),
                 
+                
+                    <.div(^.cls:="row",
+
+                        <.div(^.cls:="col-md-5",
+                            <.h3(<.span(^.cls:="label label-primary", "done-ness")),
+                        
+                    
+<.select( Doneness.values.map(v => <.option(^.key:=v.toString,^.value:=v.toString)(v.toString)),
+                            ^.onChange ==> onChangeDoneness,
+                            ^.value := s.doneness.toString,
+                            ^.cls := "form-control select select-primary"
+
+                          ))                        )
+                    ,
+
+                <.p(),                
+
+                <.div(^.cls:="row",
+                    <.div(^.cls:="col-md-5",
+                    
+                        
+
+                        s.times._2 match {
+                            case z if z ==0 => <.div(^.cls:="panel panel-danger",
+                                                    <.div(^.cls:="panel-heading",
+                                                        <.div("instructions", ^.cls:="panel-title")),
+                                                    <.div(^.cls:="panel-body", 
+                                                        <.div(<.p("that seems unwise"))))
+                            case _ =>
+                                <.div(^.cls:="panel panel-default",
+                                    <.div(^.cls:="panel-heading",
+                                        <.div("instructions", ^.cls:="panel-title")),
+                                    <.div(^.cls:="panel-body", 
+                                        <.div(  <.p(<.strong("sizzle"),s" for ${s.times._1} minutes at ${Heat.HighC}\u2103/${Heat.HighCFan}\u2103 (fan)/${Heat.HighF}\u2109,"),
+                                            <.p(<.strong("then")),
+                                            <.p(<.strong("turn down the heat"), s" to ${Heat.LowC}\u2103/${Heat.LowCFan}\u2103/${Heat.LowF}\u2109 and roast for ${s.times._2} minutes")
+                                            )))
+                        })
+                    ),
+
+                <.div(^.cls:="row",
+                    <.div(^.cls:="col-md-5",
+                        <.h6(<.p("disclaimer: this site is for guidance only - you should invest in a decent meat thermometer and not eat anything you're not sure about."),
+                        <.p("a 2015 - production by ",<.a(^.href:="https://ambivalenta.pe","ambivalentape")))
+
+
+                        ))
+
+           
+            )
         }
-            
-        
     }
 
-    val Animals = ReactComponentB[Vector[scala.Any]]("Animals")
-        .render_P {
-            s => <.label(Beef.getClass.getSimpleName)
-        }
-        .build
-
+    
 
     val ScreenApp = ReactComponentB[Unit]("Screen")
-        .initialState(State(Beef(Grams(2500)),Doneness.Medium,
-            RoastCalculator.calculateTotalCookingTimes(Beef(Grams(2500)),Doneness.Medium)))
+        .initialState(State(Beef(Weight(2500,WeightUnit.Grams)),Doneness.Medium,
+            RoastCalculator.calculateTotalCookingTimes(Beef(Weight(2500,WeightUnit.Grams)),Doneness.Medium)))
         .renderBackend[Backend]
         .buildU
     
