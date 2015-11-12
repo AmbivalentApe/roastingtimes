@@ -44,13 +44,13 @@ object Heat extends Enumeration {
 	*/
 	type Heat = Value
 	val HighC = Value("220")
-	val LowC = Value("160")
+	val LowC = Value("180")
 
 	val HighCFan = Value("200")
-	val LowCFan = Value("140")
+	val LowCFan = Value("160")
 
 	val HighF = Value("400")
-	val LowF = Value("320")
+	val LowF = Value("360")
 
 
 }
