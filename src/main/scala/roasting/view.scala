@@ -8,10 +8,12 @@ import org.scalajs.dom
 import scala.scalajs.js.annotation.JSExport
 import scala.scalajs.js.JSApp
 
+
 import pe.ambivalenta.roast.model._
-import pe.ambivalenta.roast.model.Doneness._
-import pe.ambivalenta.roast.model.Heat._
-import pe.ambivalenta.roast.model.WeightUnit._
+import pe.ambivalenta.roast.model.types._
+import pe.ambivalenta.roast.model.types.Doneness._
+//import pe.ambivalenta.roast.model.Heat._
+//import pe.ambivalenta.roast.model.WeightUnit._
 
 
 import org.scalajs.dom.document
@@ -22,10 +24,10 @@ object Screen extends JSApp{
     case class State(animal: Animal,doneness:Doneness, times:(Long,Long)){
 
     	def onNewAnimal(newAnimal : Animal): State = 
-    		State(newAnimal,doneness,RoastCalculator.calculateTotalCookingTimes(newAnimal,doneness))
+    		State(newAnimal,doneness,Calculator.calculateTotalCookingTimes(newAnimal,doneness))
 
     	def onNewDoneness(newDoneness : Doneness) : State = State(animal,newDoneness,
-            RoastCalculator.calculateTotalCookingTimes(animal,newDoneness))
+            Calculator.calculateTotalCookingTimes(animal,newDoneness))
    
     }
 
@@ -60,6 +62,8 @@ object Screen extends JSApp{
                 case l if l=="Lamb" => Lamb(weight)
                 case v if v=="Venison" => Venison(weight)
                 case b if b=="Beef" => Beef(weight)
+                case ch if ch=="Chicken" => Chicken(weight)
+                case t if t=="Turkey" => Turkey(weight)
             }
         
 
@@ -82,7 +86,7 @@ object Screen extends JSApp{
                                 <.h3(<.span(^.cls:="label label-primary", "meat")),
                         
                     
-                        <.select(RoastCalculator.animals().map(v=> <.option(^.key:=v,^.value:=v)(v)),
+                        <.select(Calculator.animals().map(v=> <.option(^.key:=v,^.value:=v)(v)),
                             ^.value := s.animal.getClass.getSimpleName,
                             ^.onChange ==> onChangeAnimal,
                             ^.cls:="form-control select select-primary"
@@ -132,7 +136,6 @@ object Screen extends JSApp{
                     <.div(^.cls:="col-md-5",
                     
                         
-
                         s.times._2 match {
                             case z if z ==0 => <.div(^.cls:="panel panel-danger",
                                                     <.div(^.cls:="panel-heading",
@@ -144,9 +147,10 @@ object Screen extends JSApp{
                                     <.div(^.cls:="panel-heading",
                                         <.div("instructions", ^.cls:="panel-title")),
                                     <.div(^.cls:="panel-body", 
-                                        <.div(  <.p(<.strong("sizzle"),s" for ${s.times._1} minutes at ${Heat.HighC}\u2103/${Heat.HighCFan}\u2103 (fan)/${Heat.HighF}\u2109,"),
+                                        <.div(  <.p(<.strong("sizzle"),s" for ${s.times._1} minutes at ${s.animal.highCookingTemp}\u2103/${Calculator.convertToFahrenheit(s.animal.highCookingTemp)}\u2109,"),
                                             <.p(<.strong("then")),
-                                            <.p(<.strong("turn down the heat"), s" to ${Heat.LowC}\u2103/${Heat.LowCFan}\u2103/${Heat.LowF}\u2109 and roast for ${s.times._2} minutes")
+                                            <.p(<.strong("turn down the heat"), s" to ${s.animal.lowCookingTemp}\u2103/${Calculator.convertToFahrenheit(s.animal.lowCookingTemp)}\u2109 and roast for ${s.times._2} minutes"),
+                                            <.p(<.strong("then"), " rest for 15-20 minutes")
                                             )))
                         })
                     ),
@@ -168,7 +172,7 @@ object Screen extends JSApp{
 
     val ScreenApp = ReactComponentB[Unit]("Screen")
         .initialState(State(Beef(Weight(2500,WeightUnit.Grams)),Doneness.Medium,
-            RoastCalculator.calculateTotalCookingTimes(Beef(Weight(2500,WeightUnit.Grams)),Doneness.Medium)))
+            Calculator.calculateTotalCookingTimes(Beef(Weight(2500,WeightUnit.Grams)),Doneness.Medium)))
         .renderBackend[Backend]
         .buildU
     
